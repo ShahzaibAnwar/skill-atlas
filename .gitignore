@@ -1,0 +1,10 @@
+# Your scan results, history excerpts and AI summaries (private, generated on your machine)
+.cache/
+
+# Your stars and notes
+user-data.json
+
+node_modules/
+npm-debug.log*
+.DS_Store
+Thumbs.db

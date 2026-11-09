@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Skill Atlas</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%23d97757'/%3E%3Cpath d='M9 22l7-13 7 13M12 17h8' stroke='white' stroke-width='2.6' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+<link rel="stylesheet" href="/app.css">
+</head>
+<body>
+<header>
+  <div class="wrap">
+    <div class="hdr">
+      <div class="brand" id="home" title="Skill Atlas home">
+        <div class="logo"><svg width="18" height="18" viewBox="0 0 32 32"><path d="M9 22l7-13 7 13M12 17h8" stroke="white" stroke-width="3" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+        <h1>Skill Atlas</h1>
+      </div>
+      <label class="search"><span class="sr">Find a skill</span>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
+        <input id="q" type="search" placeholder="What do you want to do? e.g. turn my website into a video" autocomplete="off"><kbd>/</kbd>
+      </label>
+      <span class="scanned" id="scanned"></span>
+      <button class="iconbtn" id="refresh" title="Rescan skills and history"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 12a9 9 0 1 1-2.6-6.4M21 4v5h-5"/></svg><span class="lbl">Rescan</span></button>
+      <button class="iconbtn" id="theme" title="Light / dark"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg></button>
+      <button class="iconbtn" id="help" title="Keyboard shortcuts (?)"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="2" y="6" width="20" height="12" rx="2"/><path d="M6 10h.01M10 10h.01M14 10h.01M18 10h.01M8 14h8"/></svg></button>
+    </div>
+    <nav class="tabs" id="tabs" role="tablist"></nav>
+  </div>
+</header>
+
+<main class="wrap">
+  <div class="loading" id="loading"><h2 style="margin:0 0 6px;font-size:18px;color:var(--ink)">Opening Skill Atlas…</h2><div id="loadmsg"></div></div>
+  <section class="view" id="v-skills" hidden></section>
+  <section class="view" id="v-discover" hidden></section>
+  <section class="view" id="v-projects" hidden></section>
+  <section class="view" id="v-cleanup" hidden></section>
+  <section class="view" id="v-mcp" hidden></section>
+  <section class="view" id="v-cheatsheet" hidden></section>
+</main>
+
+<div class="scrim" id="scrim"></div>
+<aside class="drawer" id="drawer" aria-hidden="true" role="dialog" aria-label="Skill details"></aside>
+<div class="tip" id="tip"></div>
+<div class="toast" id="toast" role="status"></div>
+<div class="modal" id="keys" hidden><div class="inner">
+  <h3>Keyboard shortcuts</h3>
+  <div class="keys">
+    <kbd>/</kbd><span>Find a skill</span>
+    <kbd>1 – 6</kbd><span>Switch tabs</span>
+    <kbd>V</kbd><span>Switch between cards and list</span>
+    <kbd>← →</kbd><span>Previous / next skill (when details are open)</span>
+    <kbd>J K</kbd><span>Same as ← →</span>
+    <kbd>F</kbd><span>Star / unstar the open skill</span>
+    <kbd>N</kbd><span>Write a note on the open skill</span>
+    <kbd>Esc</kbd><span>Close</span>
+    <kbd>?</kbd><span>Show this list</span>
+  </div>
+  <div style="text-align:right;margin-top:14px"><button class="btn" data-close-keys>Close</button></div>
+</div></div>
+
+<script src="/textindex.js"></script>
+<script src="/app.js"></script>
+</body>
+</html>

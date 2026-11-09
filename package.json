@@ -1,0 +1,18 @@
+{
+  "name": "skill-atlas",
+  "version": "1.0.0",
+  "description": "A local dashboard that shows every AI skill, MCP server and sub-agent on your computer (Claude Code, Codex, Gemini CLI, Antigravity, OpenCode), what each does, how to use it, and when your AI last used it.",
+  "main": "server.js",
+  "bin": { "skill-atlas": "server.js" },
+  "scripts": {
+    "start": "node server.js",
+    "scan": "node -e \"require('./scanner').scanUsage().then(u=>console.log(u.logFiles))\""
+  },
+  "engines": { "node": ">=18" },
+  "keywords": ["claude", "claude-code", "codex", "gemini-cli", "ai-skills", "agent-skills", "mcp", "dashboard", "developer-tools"],
+  "author": "Muhammad Shahzaib Anwar (https://github.com/ShahzaibAnwar)",
+  "license": "MIT",
+  "repository": { "type": "git", "url": "https://github.com/ShahzaibAnwar/skill-atlas.git" },
+  "homepage": "https://github.com/ShahzaibAnwar/skill-atlas#readme",
+  "bugs": { "url": "https://github.com/ShahzaibAnwar/skill-atlas/issues" }
+}

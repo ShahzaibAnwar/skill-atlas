@@ -8,6 +8,10 @@ Works with **Claude Code**, **Codex**, **Gemini CLI**, **Antigravity**, **OpenCo
 
 Created by **[Muhammad Shahzaib Anwar](https://github.com/ShahzaibAnwar)**.
 
+![Skill Atlas overview](docs/screenshots/overview.png)
+
+<sub>Screenshots use the built-in demo mode, so all skills, projects and requests shown are made-up sample data.</sub>
+
 ---
 
 ## Why Skill Atlas?
@@ -38,6 +42,22 @@ Skill Atlas reads the skill files and the local session history your AI tools al
 | "My disk is full of old plugin copies" | **Cleanup** lists leftover plugin versions, duplicate installs and long-unused skills, with sizes (it never deletes anything itself) |
 | "What MCP servers do I have, and do I use them?" | Lists MCP servers and sub-agents with call counts, top tools and recent uses |
 | "I want a reference card" | Prints a one-page **cheat sheet** of your skills, or saves it as a PDF |
+
+## Screenshots
+
+| Find the right skill in plain words | Everything about a skill in one place |
+|---|---|
+| ![Finder](docs/screenshots/finder.png) | ![Skill details](docs/screenshots/details.png) |
+| **Discover skills you forgot you had** | **MCP servers and sub-agents** |
+| ![Discover](docs/screenshots/discover.png) | ![MCP and agents](docs/screenshots/mcp.png) |
+| **Clean up old versions and duplicates** | **A printable cheat sheet** |
+| ![Cleanup](docs/screenshots/cleanup.png) | ![Cheat sheet](docs/screenshots/cheatsheet.png) |
+
+<details><summary>Dark mode</summary>
+
+![Dark mode](docs/screenshots/dark.png)
+
+</details>
 
 ## Features
 
@@ -72,6 +92,18 @@ Or use the launcher, which starts the server and opens your browser:
 - **macOS / Linux:** `sh start.sh`
 
 The first scan reads all your local AI history and can take a minute if you have a lot. After that it opens instantly.
+
+### Try the demo first
+
+Want to look around before it reads anything of yours? Demo mode runs on made-up sample data and **does not read any of your files**:
+
+```bash
+node server.js --demo     # or: npm run demo
+```
+
+Then open **http://localhost:4748**. Demo mode uses its own port, so it can run next to the real one, and stars and notes made in the demo are kept in memory only.
+
+You can also link straight to a search or a theme, for example `http://localhost:4747/?q=make%20a%20pitch%20deck&theme=dark`.
 
 ## How to use it
 
@@ -131,6 +163,7 @@ Skill Atlas was built to be safe to run on a work machine.
 |---|---|---|
 | `PORT` | `4747` | Port for the local server |
 | `SKILL_ATLAS_MODEL` | `claude-haiku-5-5` | Model used by *Write summaries* |
+| `SKILL_ATLAS_DEMO` | off | Set to `1` (or pass `--demo`) to run on sample data; the default port becomes `4748` |
 
 ## Troubleshooting
 
@@ -147,6 +180,7 @@ server.js       Local web server (127.0.0.1), saved snapshot, background rescans
 scanner.js      Finds skills, MCP servers, sub-agents and plugin versions; reads session logs (cached per file)
 assemble.js     Merges duplicates, finds overlaps and suggestions, builds project, MCP and cleanup views
 summarize.js    Optional plain-English summaries via the Claude Code CLI
+demo.js         Made-up sample data for demo mode (--demo)
 public/
   index.html    Page shell
   app.js        Dashboard (vanilla JS, no framework, no build step)

@@ -6,6 +6,7 @@
   "bin": { "skill-atlas": "server.js" },
   "scripts": {
     "start": "node server.js",
+    "demo": "node server.js --demo",
     "scan": "node -e \"require('./scanner').scanUsage().then(u=>console.log(u.logFiles))\""
   },
   "engines": { "node": ">=18" },

@@ -203,7 +203,7 @@ function assemble({ usage, inv, summaries = {}, partial = false, scanMs = 0 }) {
     for (const i of c) for (const [t, w] of vecs[i]) tw.set(t, (tw.get(t) || 0) + w);
     const shared = [...tw.entries()].filter(([t]) => c.filter((i) => vecs[i].has(t)).length >= Math.min(c.length, 2)).sort((a, b) => b[1] - a[1]).slice(0, 6).map(([t]) => t);
     const strength = Math.max(...edges.filter(([a, b]) => c.includes(a) && c.includes(b)).map((x) => x[2]));
-    const texts = c.map((i) => ({ text: `${entries[i].name.replace(/[-_]/g, ' ')} ${entries[i].description}` }));
+    const texts = c.map((i) => ({ text: [entries[i].name.replace(/[-_]/g, ' '), entries[i].description, (entries[i].whenList || []).join(' '), entries[i].ai ? `${entries[i].ai.title} ${entries[i].ai.oneLiner} ${entries[i].ai.example}` : '', (entries[i].outline || []).join(' ')].join(' ') }));
     return { keys: c.map((i) => entries[i].key).sort((a, b) => byKey.get(b).useCount - byKey.get(a).useCount), terms: shared.map((t) => readableTerm(t, texts)), strength: +strength.toFixed(2) };
   }).sort((a, b) => b.strength - a.strength).slice(0, 30);
 

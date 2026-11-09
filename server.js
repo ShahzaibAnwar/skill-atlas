@@ -9,7 +9,10 @@ const { scanUsage, scanInventory, cachedCwds, progress, CACHE_DIR } = require('.
 const { assemble, applySummaries } = require('./assemble');
 const summarize = require('./summarize');
 
-const PORT = Number(process.env.PORT) || 4747;
+// Demo mode: made-up sample data, reads none of your files (good for trying it out or screenshots)
+const DEMO = process.argv.includes('--demo') || process.env.SKILL_ATLAS_DEMO === '1';
+const PORT = Number(process.env.PORT) || (DEMO ? 4748 : 4747);
+let demoFiles = {}; let demoUser = null;
 const HOST = '127.0.0.1'; // only reachable from this computer
 const SNAPSHOT = path.join(CACHE_DIR, 'last-data.json');
 const USER_FILE = path.join(__dirname, 'user-data.json'); // your favorites + notes
@@ -25,13 +28,21 @@ function loadSnapshot() {
   try { const s = JSON.parse(fs.readFileSync(SNAPSHOT, 'utf8')); if (s && s.data && s.data.entries) { data = s.data; paths = s.paths || {}; data.fromSnapshot = true; } } catch {}
 }
 
+function loadDemo() {
+  const d = require('./demo');
+  const r = d.buildDemo(); demoFiles = r.files; setResult(r);
+  if (!demoUser) demoUser = d.demoUserData();
+}
+
 function quickInventory() {
+  if (DEMO) return loadDemo();
   // Shown while the first full scan runs: skills only, no usage yet.
   const inv = scanInventory(cachedCwds());
   setResult(assemble({ usage: { files: [] }, inv, summaries: summarize.loadSummaries(), partial: true }));
 }
 
 function scan() {
+  if (DEMO) { loadDemo(); return Promise.resolve(); }
   if (!scanning) {
     scanning = (async () => {
       const t0 = Date.now();
@@ -82,11 +93,13 @@ const server = http.createServer(async (req, res) => {
     }
     if (url.pathname === '/api/status') return send(res, 200, status());
     if (url.pathname === '/api/skill-file') {
+      if (DEMO) { const c = demoFiles[url.searchParams.get('id')]; return c ? send(res, 200, { file: 'demo', content: c }) : send(res, 404, { error: 'not found' }); }
       const p = paths[url.searchParams.get('id')];
       if (!p || !p.file || !/\.md$/i.test(p.file)) return send(res, 404, { error: 'not found' });
       return send(res, 200, { file: p.file, content: fs.readFileSync(p.file, 'utf8') });
     }
     if (url.pathname === '/api/open-folder' && req.method === 'POST') {
+      if (DEMO) return send(res, 200, { ok: false, demo: true });
       const p = paths[url.searchParams.get('id')];
       if (!p || !p.dir || !fs.existsSync(p.dir)) return send(res, 404, { error: 'not found' });
       const opener = process.platform === 'win32' ? 'explorer' : process.platform === 'darwin' ? 'open' : 'xdg-open';
@@ -100,13 +113,14 @@ const server = http.createServer(async (req, res) => {
           favorites: [...new Set((Array.isArray(body.favorites) ? body.favorites : []).filter((x) => typeof x === 'string').map((x) => x.slice(0, 300)))].slice(0, 2000),
           notes: Object.fromEntries(Object.entries(body.notes || {}).filter(([k, v]) => typeof v === 'string' && v.trim()).map(([k, v]) => [String(k).slice(0, 300), v.slice(0, 5000)]).slice(0, 2000)),
         };
-        fs.writeFileSync(USER_FILE, JSON.stringify(clean, null, 1));
+        if (DEMO) demoUser = clean; else fs.writeFileSync(USER_FILE, JSON.stringify(clean, null, 1));
         return send(res, 200, clean);
       }
-      return send(res, 200, loadUser());
+      return send(res, 200, DEMO ? demoUser : loadUser());
     }
     if (url.pathname === '/api/summarize' && req.method === 'POST') {
       if (!data) return send(res, 409, { error: 'not ready' });
+      if (DEMO) return send(res, 200, status());
       summarize.run(data.entries, {
         all: url.searchParams.get('all') === '1',
         onBatch: (store) => { if (data) { applySummaries(data.entries, store); saveSnapshot(); } },
@@ -125,7 +139,8 @@ server.on('error', (e) => {
   process.exit(e.code === 'EADDRINUSE' ? 0 : 1);
 });
 server.listen(PORT, HOST, () => {
-  console.log(`\n  Skill Atlas is running →  http://localhost:${PORT}\n`);
+  console.log(`\n  Skill Atlas${DEMO ? ' (DEMO, sample data)' : ''} is running →  http://localhost:${PORT}\n`);
+  if (DEMO) return loadDemo();
   loadSnapshot();
   scan();
 });

@@ -140,9 +140,20 @@ function categorize(s) {
 }
 
 // ---------- skills ----------
-function buildSkill({ file, tool, kind, plugin, isCommand, sourceLabel, installedAt }) {
-  const src = readText(file);
+function buildSkill(opts) {
+  const src = readText(opts.file);
   if (src == null) return null;
+  const stat = fs.statSync(opts.file);
+  return skillFromText(src, {
+    ...opts,
+    modified: stat.mtime.toISOString(),
+    installedAt: opts.installedAt || stat.birthtime.toISOString(),
+    sizeBytes: opts.isCommand ? stat.size : dirSize(path.dirname(opts.file)),
+  });
+}
+
+// Parses a SKILL.md (or command .md) text into the shape the dashboard uses.
+function skillFromText(src, { file, tool, kind, plugin, isCommand, sourceLabel, installedAt, modified, sizeBytes }) {
   const { fm, body } = parseFrontmatter(src);
   const dirName = path.basename(path.dirname(file));
   const name = String(fm.name || (isCommand ? path.basename(file, '.md') : dirName)).trim();
@@ -171,7 +182,6 @@ function buildSkill({ file, tool, kind, plugin, isCommand, sourceLabel, installe
     else if (!howSection && /how to use|usage|quick ?start|getting started|how it works|workflow|the process|process|steps|instructions|commands|core loop|method/i.test(t)) howSection = sectionText(secs, i, 1400);
   });
   const outline = secs.filter((s) => s.level >= 1 && s.level <= 2 && s.title).map((s) => s.title).slice(0, 18);
-  const stat = fs.statSync(file);
   const meta = typeof fm.metadata === 'object' ? fm.metadata : {};
   const dir = path.dirname(file);
   const skill = {
@@ -179,9 +189,7 @@ function buildSkill({ file, tool, kind, plugin, isCommand, sourceLabel, installe
     name, description, summary, whenList, notList, whenSection, notSection, howSection, outline,
     argumentHint: fm['argument-hint'] || fm.argument_hint || '',
     version: fm.version || meta.version || '',
-    file, dir, modified: stat.mtime.toISOString(),
-    installedAt: installedAt || stat.birthtime.toISOString(),
-    sizeBytes: isCommand ? stat.size : dirSize(dir),
+    file, dir, modified: modified || null, installedAt: installedAt || modified || null, sizeBytes: sizeBytes || 0,
     words: body.split(/\s+/).length,
   };
   skill.id = `${tool}::${plugin ? plugin + ':' : ''}${name}`;
@@ -591,4 +599,4 @@ function scanInventory(projectDirs) {
   };
 }
 
-module.exports = { redact, scanUsage, scanInventory, cachedCwds, progress, categorize, isDir, HOME, CACHE_DIR };
+module.exports = { redact, skillFromText, scanUsage, scanInventory, cachedCwds, progress, categorize, isDir, HOME, CACHE_DIR };

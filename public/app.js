@@ -196,6 +196,7 @@ async function load(refresh) {
     D = await r.json();
     if (D.error) throw new Error(D.error);
     prepare();
+    if (D.demo && !$('#demobadge')) $('#home').insertAdjacentHTML('beforeend', '<span id="demobadge" class="pill p-warn" title="Running with made-up sample data">Demo</span>');
     $('#loading').hidden = true;
     renderTabs();
     route();
@@ -717,7 +718,7 @@ document.addEventListener('click', async (ev) => {
   if (copy) { ev.stopPropagation(); navigator.clipboard.writeText(copy.dataset.copy).then(() => toast('Copied: ' + copy.dataset.copy), () => toast('Copy failed')); return; }
   const star = t.closest('[data-star]'); if (star) { ev.stopPropagation(); toggleFav(star.dataset.star); return; }
   const folder = t.closest('[data-folder]');
-  if (folder) { ev.stopPropagation(); const r = await fetch('/api/open-folder?id=' + encodeURIComponent(folder.dataset.folder), { method: 'POST' }); toast(r.ok ? 'Opened in File Explorer' : 'Folder not found'); return; }
+  if (folder) { ev.stopPropagation(); const r = await fetch('/api/open-folder?id=' + encodeURIComponent(folder.dataset.folder), { method: 'POST' }); const j = await r.json().catch(() => ({})); toast(j.demo ? 'Demo mode: there are no real folders to open' : r.ok ? 'Opened in File Explorer' : 'Folder not found'); return; }
   const file = t.closest('[data-file]');
   if (file) {
     const box = $(`[data-filebox="${CSS.escape(file.dataset.file)}"]`); file.disabled = true; file.textContent = 'Loading…';
@@ -784,4 +785,11 @@ $('#refresh').onclick = async () => {
 document.addEventListener('toggle', (e) => { if (e.target.dataset && e.target.dataset.remember) state.showAll[e.target.dataset.remember] = e.target.open; }, true);
 let rt; addEventListener('resize', () => { clearTimeout(rt); rt = setTimeout(() => { if (state.tab === 'skills' && !state.q) renderActivity(); }, 150); });
 
+// Optional URL settings: ?q=search words  ?theme=dark|light  ?view=grid|list
+(function () {
+  const p = new URLSearchParams(location.search);
+  if (p.get('theme') === 'dark' || p.get('theme') === 'light') document.documentElement.dataset.theme = p.get('theme');
+  if (p.get('view') === 'grid' || p.get('view') === 'list') state.view = p.get('view');
+  if (p.get('q')) { state.q = p.get('q'); $('#q').value = state.q; }
+})();
 loadUser().then(() => load(false));
